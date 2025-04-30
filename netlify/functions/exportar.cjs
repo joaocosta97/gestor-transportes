@@ -43,7 +43,16 @@ exports.handler = async (event, context) => {
       if (minutos <= 180) return '3h';
       if (minutos <= 210) return '3h30';
       if (minutos <= 240) return '4h';
-      return `+${Math.floor(minutos / 60)}h`;
+      if (minutos <= 270) return '4h30';
+      if (minutos <= 300) return '5h';
+      if (minutos <= 330) return '5h30';
+      if (minutos <= 360) return '6h';
+      if (minutos <= 390) return '6h30';
+      if (minutos <= 420) return '7h';
+      if (minutos <= 450) return '7h30';
+      if (minutos <= 480) return '8h';
+      
+      return `> ${Math.floor(minutos / 60)}h`;
     };
 
     const linhas = registos.map((r) => {
