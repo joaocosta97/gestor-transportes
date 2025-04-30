@@ -11,20 +11,18 @@ exports.handler = async (event, context) => {
   try {
     const registos = JSON.parse(event.body);
 
+    const creds = {
+      client_email: process.env.GS_CLIENT_EMAIL,
+      private_key: process.env.GS_PRIVATE_KEY.replace(/\\n/g, '\n'),
+    };
+
     const doc = new GoogleSpreadsheet('18iEuvgAN7R9n1fpVGpaeug9EX_oFVR38dQxGxG6TskQ');
-
-    // Autenticar manualmente (versão compatível com CommonJS)
-    await doc.auth({
-      credentials: {
-        client_email: process.env.GS_CLIENT_EMAIL,
-        private_key: process.env.GS_PRIVATE_KEY.replace(/\\n/g, '\n'),
-      },
-    });
-
+    await doc.useServiceAccountAuth(creds);
     await doc.loadInfo();
+
     const sheet = doc.sheetsByIndex[0];
 
-    if (sheet.headerValues.length === 0) {
+    if (!sheet.headerValues || sheet.headerValues.length === 0) {
       await sheet.setHeaderRow([
         'Utilizador', 'Viatura', 'Tarefa', 'Data', 'Hora Início', 'Hora Fim',
       ]);
