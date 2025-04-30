@@ -3,7 +3,7 @@ import FloatingButton from '../components/FloatingButton';
 import AddRecordModal from '../components/AddRecordModal';
 import LogoutButton from '../components/LogoutButton';
 import FiltrosModal from '../components/FiltrosModal';
-import { exportToGoogleSheets } from '../utils/exportToGoogleSheets';
+//import { exportToGoogleSheets } from '../utils/exportToGoogleSheets';
 import { db } from '../firebase';
 import {
   collection,
@@ -116,12 +116,7 @@ function AdminPage() {
       {/* Topo com Logout à esquerda e Exportar à direita */}
       <div className="flex justify-between items-center mb-4">
         <LogoutButton />
-        <button
-          onClick={() => exportToGoogleSheets(registos)}
-          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
-        >
-          Exportar
-        </button>
+        
       </div>
 
       <h1 className="text-2xl font-bold mb-4">Todos os Registos</h1>
