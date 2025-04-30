@@ -24,24 +24,37 @@ exports.handler = async (event, context) => {
 
     if (!sheet.headerValues || sheet.headerValues.length === 0) {
       await sheet.setHeaderRow([
-        'Utilizador', 'Viatura', 'Tarefa', 'Data', 'Hora Início', 'Hora Fim',
+        'Utilizador',
+        'Viatura',
+        'Tarefa',
+        'Data',
+        'Hora Início',
+        'Hora Fim',
+        'Duração',
       ]);
     }
 
-    const linhas = registos.map((r) => ({
-      Utilizador: r.username,
-      Viatura: r.viatura,
-      Tarefa: r.tarefa,
-      Data: r.data,
-      'Hora Início': r.horaInicio,
-      'Hora Fim': r.horaFim,
-    }));
+    const linhas = registos.map((r) => {
+      const [h1, m1] = r.horaInicio.split(':').map(Number);
+      const [h2, m2] = r.horaFim.split(':').map(Number);
+      const minutos = (h2 * 60 + m2) - (h1 * 60 + m1);
+
+      return {
+        Utilizador: r.username,
+        Viatura: r.viatura,
+        Tarefa: r.tarefa,
+        Data: r.data,
+        'Hora Início': r.horaInicio,
+        'Hora Fim': r.horaFim,
+        Duração: `${minutos} min`,
+      };
+    });
 
     await sheet.addRows(linhas);
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ message: 'Exportado com sucesso!' }),
+      body: JSON.stringify({ message: 'Exportado com sucesso com duração calculada!' }),
     };
   } catch (error) {
     console.error('Erro ao exportar:', error);
