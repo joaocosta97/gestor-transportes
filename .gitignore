@@ -26,3 +26,6 @@ dist-ssr
 # .gitignore
 /src/utils/credentials.json
 netlify/functions/credentials.json
+
+# Local Netlify folder
+.netlify

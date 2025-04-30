@@ -1,7 +1,12 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, getDocs, query, orderBy } from 'firebase/firestore/lite';
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  query,
+  orderBy,
+} from 'firebase/firestore/lite';
 
-// Usa o mesmo firebaseConfig do frontend
 const firebaseConfig = {
   apiKey: 'AIzaSyCoYCSn7MAs_x0S-srk9ilvZD2UjmI_Zf8',
   authDomain: 'gestor-transportes.firebaseapp.com',
@@ -14,9 +19,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-export default async (req, res) => {
+export default async (req, context) => {
   if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Método não permitido' });
+    return new Response(
+      JSON.stringify({ error: 'Método não permitido' }),
+      { status: 405 }
+    );
   }
 
   try {
@@ -28,9 +36,15 @@ export default async (req, res) => {
       ...doc.data(),
     }));
 
-    return res.status(200).json(dados);
+    return new Response(JSON.stringify(dados), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
   } catch (error) {
     console.error('Erro ao exportar registos:', error);
-    return res.status(500).json({ error: 'Erro interno no servidor' });
+    return new Response(
+      JSON.stringify({ error: 'Erro interno no servidor' }),
+      { status: 500 }
+    );
   }
 };
