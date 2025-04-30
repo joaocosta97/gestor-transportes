@@ -11,7 +11,7 @@ function FiltrosModal({ isOpen, onClose, onApply, initialFilters }) {
 
   const [userList, setUserList] = useState([]);
   const [viaturasList, setViaturasList] = useState([]);
-  const [tarefasList, setTarefasList] = useState([]);
+  const [tarefaList, setTarefaList] = useState([]);
 
   useEffect(() => {
     if (initialFilters) {
@@ -28,15 +28,15 @@ function FiltrosModal({ isOpen, onClose, onApply, initialFilters }) {
       try {
         const usersSnap = await getDocs(collection(db, 'utilizadores'));
         const viaturasSnap = await getDocs(collection(db, 'viaturas'));
-        const tarefasSnap = await getDocs(collection(db, 'tarefas'));
+        const tarefaSnap = await getDocs(collection(db, 'tarefa'));
 
         const users = usersSnap.docs.map(doc => doc.data().username);
         const viaturas = viaturasSnap.docs.map(doc => doc.data().nome);
-        const tarefas = tarefasSnap.docs.map(doc => doc.data().nome);
+        const tarefa = tarefaSnap.docs.map(doc => doc.data().nome);
 
         setUserList(users);
         setViaturasList(viaturas);
-        setTarefasList(tarefas);
+        setTarefaList(tarefa);
       } catch (error) {
         console.error('Erro ao buscar dados para filtros:', error);
       }
@@ -101,7 +101,7 @@ function FiltrosModal({ isOpen, onClose, onApply, initialFilters }) {
             onChange={(e) => setFiltroTarefa(e.target.value)}
           >
             <option value="">Filtrar por tarefa</option>
-            {tarefasList.map((t) => (
+            {tarefaList.map((t) => (
               <option key={t} value={t}>{t}</option>
             ))}
           </select>

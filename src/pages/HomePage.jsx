@@ -4,7 +4,16 @@ import AddRecordModal from '../components/AddRecordModal';
 import LogoutButton from '../components/LogoutButton';
 import UserInfo from '../components/UserInfo';
 import { db } from '../firebase';
-import { collection, addDoc, query, where, getDocs, orderBy, doc, updateDoc } from 'firebase/firestore';
+import {
+  collection,
+  addDoc,
+  query,
+  where,
+  getDocs,
+  orderBy,
+  doc,
+  updateDoc,
+} from 'firebase/firestore';
 
 function HomePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,7 +27,7 @@ function HomePage() {
       const q = query(
         collection(db, 'registos'),
         where('username', '==', username),
-        orderBy('createdAt', 'desc')
+        orderBy('dataHoraInicio', 'desc')
       );
       const querySnapshot = await getDocs(q);
 
@@ -35,10 +44,12 @@ function HomePage() {
 
   const handleSaveRecord = async (data) => {
     try {
+      const dataHoraInicio = new Date(`${data.data}T${data.horaInicio}`);
       await addDoc(collection(db, 'registos'), {
         ...data,
         username,
         createdAt: new Date(),
+        dataHoraInicio,
       });
       console.log('Registo adicionado com sucesso');
       fetchRegistos();
@@ -54,10 +65,12 @@ function HomePage() {
 
   const handleUpdateRecord = async (data) => {
     try {
+      const dataHoraInicio = new Date(`${data.data}T${data.horaInicio}`);
       const recordRef = doc(db, 'registos', recordToEdit.id);
 
       await updateDoc(recordRef, {
         ...data,
+        dataHoraInicio,
       });
 
       console.log('Registo atualizado com sucesso');

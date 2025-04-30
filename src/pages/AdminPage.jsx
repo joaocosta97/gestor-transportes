@@ -41,7 +41,7 @@ function AdminPage() {
       if (filtros.dataInicio) condicoes.push(where('data', '>=', filtros.dataInicio));
       if (filtros.dataFim) condicoes.push(where('data', '<=', filtros.dataFim));
 
-      const q = query(ref, ...condicoes, orderBy('createdAt', 'desc'));
+      const q = query(ref, ...condicoes, orderBy('dataHoraInicio', 'desc'));
       const snapshot = await getDocs(q);
 
       const dados = snapshot.docs.map(doc => ({
@@ -61,9 +61,11 @@ function AdminPage() {
 
   const handleSaveRecord = async (data) => {
     try {
+      const dataHoraInicio = new Date(`${data.data}T${data.horaInicio}`);
       await addDoc(collection(db, 'registos'), {
         ...data,
         createdAt: new Date(),
+        dataHoraInicio,
       });
       fetchRegistos();
     } catch (error) {
@@ -71,15 +73,19 @@ function AdminPage() {
     }
   };
 
-  const handleEditRecord = (registo) => {
-    setRecordToEdit(registo);
+  const handleEditRecord = (data) => {
+    setRecordToEdit(data);
     setIsModalOpen(true);
   };
 
   const handleUpdateRecord = async (data) => {
     try {
+      const dataHoraInicio = new Date(`${data.data}T${data.horaInicio}`);
       const recordRef = doc(db, 'registos', recordToEdit.id);
-      await updateDoc(recordRef, data);
+      await updateDoc(recordRef, {
+        ...data,
+        dataHoraInicio,
+      });
       setRecordToEdit(null);
       fetchRegistos();
     } catch (error) {
@@ -106,7 +112,6 @@ function AdminPage() {
 
   return (
     <div className="min-h-screen bg-blue-100 p-4 relative">
-
       {/* Topo com Logout à esquerda e Filtros à direita */}
       <div className="flex justify-between items-center mb-4">
         <LogoutButton />
