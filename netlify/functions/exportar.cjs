@@ -52,7 +52,7 @@ exports.handler = async (event, context) => {
       if (minutos <= 450) return '7h30';
       if (minutos <= 480) return '8h';
       
-      return `> ${Math.floor(minutos / 60)}h`;
+      return `${Math.floor(minutos / 60)}h`;
     };
 
     const linhas = registos.map((r) => {
