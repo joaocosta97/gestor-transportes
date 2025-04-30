@@ -3,7 +3,6 @@ import FloatingButton from '../components/FloatingButton';
 import AddRecordModal from '../components/AddRecordModal';
 import LogoutButton from '../components/LogoutButton';
 import FiltrosModal from '../components/FiltrosModal';
-//import { exportToGoogleSheets } from '../utils/exportToGoogleSheets';
 import { db } from '../firebase';
 import {
   collection,
@@ -111,12 +110,33 @@ function AdminPage() {
     setFiltros(novosFiltros);
   };
 
+  const exportarParaSheets = async () => {
+    try {
+      const res = await fetch('/.netlify/functions/exportar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(registos),
+      });
+
+      const data = await res.json();
+      alert(data.message || 'Exportação concluída!');
+    } catch (err) {
+      console.error('Erro ao exportar para o Google Sheets:', err);
+      alert('Erro ao exportar para o Google Sheets.');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-blue-100 p-4 relative">
       {/* Topo com Logout à esquerda e Exportar à direita */}
       <div className="flex justify-between items-center mb-4">
         <LogoutButton />
-        
+        <button
+          onClick={exportarParaSheets}
+          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+        >
+          Exportar
+        </button>
       </div>
 
       <h1 className="text-2xl font-bold mb-4">Todos os Registos</h1>
@@ -179,7 +199,6 @@ function AdminPage() {
         onClick={abrirFiltros}
         className="fixed bottom-4 left-4 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg"
       >
-        {/* Ícone de lupa em SVG */}
         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none"
           viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
