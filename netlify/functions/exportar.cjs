@@ -34,6 +34,18 @@ exports.handler = async (event, context) => {
       ]);
     }
 
+    const arredondarDuracao = (minutos) => {
+      if (minutos <= 30) return '30m';
+      if (minutos <= 60) return '1h';
+      if (minutos <= 90) return '1h30';
+      if (minutos <= 120) return '2h';
+      if (minutos <= 150) return '2h30';
+      if (minutos <= 180) return '3h';
+      if (minutos <= 210) return '3h30';
+      if (minutos <= 240) return '4h';
+      return `+${Math.floor(minutos / 60)}h`;
+    };
+
     const linhas = registos.map((r) => {
       const [h1, m1] = r.horaInicio.split(':').map(Number);
       const [h2, m2] = r.horaFim.split(':').map(Number);
@@ -46,7 +58,7 @@ exports.handler = async (event, context) => {
         Data: r.data,
         'Hora Início': r.horaInicio,
         'Hora Fim': r.horaFim,
-        Duração: `${minutos} min`,
+        Duração: arredondarDuracao(minutos),
       };
     });
 
@@ -54,7 +66,7 @@ exports.handler = async (event, context) => {
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ message: 'Exportado com sucesso com duração calculada!' }),
+      body: JSON.stringify({ message: 'Exportado com sucesso!' }),
     };
   } catch (error) {
     console.error('Erro ao exportar:', error);
