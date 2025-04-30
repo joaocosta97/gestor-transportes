@@ -1,5 +1,4 @@
 const { GoogleSpreadsheet } = require('google-spreadsheet');
-const creds = require('./credentials.json');
 
 exports.handler = async (event, context) => {
   if (event.httpMethod !== 'POST') {
@@ -14,8 +13,8 @@ exports.handler = async (event, context) => {
 
     const doc = new GoogleSpreadsheet('18iEuvgAN7R9n1fpVGpaeug9EX_oFVR38dQxGxG6TskQ');
     await doc.useServiceAccountAuth({
-      client_email: creds.client_email,
-      private_key: creds.private_key.replace(/\\n/g, '\n'),
+      client_email: process.env.GS_CLIENT_EMAIL,
+      private_key: process.env.GS_PRIVATE_KEY.replace(/\\n/g, '\n'),
     });
 
     await doc.loadInfo();
