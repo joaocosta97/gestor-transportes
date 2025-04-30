@@ -119,6 +119,9 @@ function AdminPage() {
       });
 
       const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Erro desconhecido');
+      }
       alert(data.message || 'Exportação concluída!');
     } catch (err) {
       console.error('Erro ao exportar para o Google Sheets:', err);

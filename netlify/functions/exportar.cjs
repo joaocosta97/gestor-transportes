@@ -12,9 +12,13 @@ exports.handler = async (event, context) => {
     const registos = JSON.parse(event.body);
 
     const doc = new GoogleSpreadsheet('18iEuvgAN7R9n1fpVGpaeug9EX_oFVR38dQxGxG6TskQ');
-    await doc.useServiceAccountAuth({
-      client_email: process.env.GS_CLIENT_EMAIL,
-      private_key: process.env.GS_PRIVATE_KEY.replace(/\\n/g, '\n'),
+
+    // Autenticar manualmente (versão compatível com CommonJS)
+    await doc.auth({
+      credentials: {
+        client_email: process.env.GS_CLIENT_EMAIL,
+        private_key: process.env.GS_PRIVATE_KEY.replace(/\\n/g, '\n'),
+      },
     });
 
     await doc.loadInfo();
@@ -42,7 +46,7 @@ exports.handler = async (event, context) => {
       body: JSON.stringify({ message: 'Exportado com sucesso!' }),
     };
   } catch (error) {
-    console.error('Erro:', error);
+    console.error('Erro ao exportar:', error);
     return {
       statusCode: 500,
       body: JSON.stringify({ error: 'Erro ao exportar para o Google Sheets.' }),
