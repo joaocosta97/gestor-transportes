@@ -5,6 +5,7 @@ import { collection, getDocs } from 'firebase/firestore';
 function AddRecordModal({ isOpen, onClose, onSave, initialData = {} }) {
   const tipo = localStorage.getItem('tipo');
   const isAdmin = tipo === 'admin';
+  const loggedUsername = localStorage.getItem('username');
 
   const [userList, setUserList] = useState([]);
   const [viaturasList, setViaturasList] = useState([]);
@@ -34,19 +35,22 @@ function AddRecordModal({ isOpen, onClose, onSave, initialData = {} }) {
     }
   }, [isAdmin]);
 
-  // Buscar Viaturas
+  // Buscar Viaturas com restrição de acesso
   useEffect(() => {
     const fetchViaturas = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, 'viaturas'));
-        const viaturas = querySnapshot.docs.map(doc => doc.data().nome);
+        const viaturas = querySnapshot.docs
+          .map(doc => doc.data())
+          .filter(v => v.acesso === 'todos' || v.acesso === loggedUsername)
+          .map(v => v.nome);
         setViaturasList(viaturas);
       } catch (error) {
         console.error('Erro ao buscar viaturas:', error);
       }
     };
     fetchViaturas();
-  }, []);
+  }, [loggedUsername]);
 
   // Buscar Tarefas
   useEffect(() => {
@@ -71,15 +75,14 @@ function AddRecordModal({ isOpen, onClose, onSave, initialData = {} }) {
       setData(initialData.data || '');
       setHoraInicio(initialData.horaInicio || '');
       setHoraFim(initialData.horaFim || '');
-      setUsername(initialData.username || (isAdmin ? '' : localStorage.getItem('username')));
+      setUsername(initialData.username || (isAdmin ? '' : loggedUsername));
     }
-  }, [initialData, isAdmin]);
+  }, [initialData, isAdmin, loggedUsername]);
 
   if (!isOpen) return null;
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     const tarefaFinal = tarefa === 'Outro' ? outraTarefa : tarefa;
 
     const registo = {
@@ -88,7 +91,7 @@ function AddRecordModal({ isOpen, onClose, onSave, initialData = {} }) {
       data,
       horaInicio,
       horaFim,
-      username: isAdmin ? username : localStorage.getItem('username'),
+      username: isAdmin ? username : loggedUsername,
     };
 
     onSave(registo);
