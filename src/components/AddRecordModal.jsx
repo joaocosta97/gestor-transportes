@@ -5,8 +5,8 @@ import { collection, getDocs } from 'firebase/firestore';
 function AddRecordModal({ isOpen, onClose, onSave, initialData = {} }) {
   const tipo = localStorage.getItem('tipo');
   const isAdmin = tipo === 'admin';
-  const loggedUsername = localStorage.getItem('username');
 
+  const [loggedUsername, setLoggedUsername] = useState('');
   const [userList, setUserList] = useState([]);
   const [viaturasList, setViaturasList] = useState([]);
   const [tarefasList, setTarefasList] = useState([]);
@@ -19,7 +19,13 @@ function AddRecordModal({ isOpen, onClose, onSave, initialData = {} }) {
   const [horaFim, setHoraFim] = useState('');
   const [username, setUsername] = useState('');
 
-  // Buscar Utilizadores (para admin)
+  useEffect(() => {
+    const storedUsername = localStorage.getItem('username');
+    if (storedUsername) {
+      setLoggedUsername(storedUsername);
+    }
+  }, []);
+
   useEffect(() => {
     if (isAdmin) {
       const fetchUsers = async () => {
@@ -35,24 +41,37 @@ function AddRecordModal({ isOpen, onClose, onSave, initialData = {} }) {
     }
   }, [isAdmin]);
 
-  // Buscar Viaturas com restrição de acesso
   useEffect(() => {
+    if (!loggedUsername) return;
+
     const fetchViaturas = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, 'viaturas'));
-        const viaturas = querySnapshot.docs
-          .map(doc => doc.data())
-          .filter(v => v.acesso === 'todos' || v.acesso === loggedUsername)
-          .map(v => v.nome);
-        setViaturasList(viaturas);
+        const user = loggedUsername.toLowerCase().trim();
+        const filtradas = [];
+
+        querySnapshot.docs.forEach(doc => {
+          const data = doc.data();
+          const acesso = data.acesso;
+
+          const permitido = isAdmin ||
+            (Array.isArray(acesso) && acesso.includes(user)) ||
+            (typeof acesso === 'string' && acesso.toLowerCase().trim() === user);
+
+          if (permitido) {
+            filtradas.push(data.nome);
+          }
+        });
+
+        setViaturasList(filtradas);
       } catch (error) {
         console.error('Erro ao buscar viaturas:', error);
       }
     };
-    fetchViaturas();
-  }, [loggedUsername]);
 
-  // Buscar Tarefas
+    fetchViaturas();
+  }, [loggedUsername, isAdmin]);
+
   useEffect(() => {
     const fetchTarefas = async () => {
       try {
@@ -66,7 +85,6 @@ function AddRecordModal({ isOpen, onClose, onSave, initialData = {} }) {
     fetchTarefas();
   }, []);
 
-  // Preencher campos se for edição
   useEffect(() => {
     if (initialData) {
       setViatura(initialData.viatura || '');
@@ -105,7 +123,6 @@ function AddRecordModal({ isOpen, onClose, onSave, initialData = {} }) {
           {initialData?.id ? 'Editar Registo' : 'Novo Registo'}
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
-
           {isAdmin && (
             <div>
               <label className="block mb-1 font-semibold">Utilizador</label>

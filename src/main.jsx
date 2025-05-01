@@ -1,11 +1,21 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.jsx'
-import './index.css'
+import React, { useEffect } from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App.jsx';
+import './index.css';
 
-// Importação do sistema de notificações
-import { ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from './firebase';
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    const email = user.email;
+    const username = email.split('@')[0]; // extrair "joao.costa" de "joao.costa@gestor.com"
+    localStorage.setItem('username', username);
+  }
+});
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -19,5 +29,5 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       pauseOnHover
       theme="light"
     />
-  </React.StrictMode>,
-)
+  </React.StrictMode>
+);

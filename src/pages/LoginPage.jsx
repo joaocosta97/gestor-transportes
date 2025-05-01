@@ -1,5 +1,9 @@
 import { useState } from 'react';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import {
+  signInWithEmailAndPassword,
+  setPersistence,
+  browserLocalPersistence,
+} from 'firebase/auth';
 import { auth, db } from '../firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
@@ -12,14 +16,14 @@ function LoginPage() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
     const fakeEmail = `${username}@gestor.com`;
 
     try {
+      await setPersistence(auth, browserLocalPersistence);
+
       const userCredential = await signInWithEmailAndPassword(auth, fakeEmail, pin);
       const uid = userCredential.user.uid;
 
-      // Ir buscar o tipo ao Firestore
       const userRef = doc(db, 'utilizadores', uid);
       const userSnap = await getDoc(userRef);
 
@@ -27,20 +31,13 @@ function LoginPage() {
         const userData = userSnap.data();
         const tipo = userData.tipo;
 
-        // Guardar no localStorage
         localStorage.setItem('username', username);
         localStorage.setItem('tipo', tipo);
 
-        // Redirecionar com base no tipo
-        if (tipo === 'admin') {
-          navigate('/admin');
-        } else {
-          navigate('/home');
-        }
+        navigate(tipo === 'admin' ? '/admin' : '/home');
       } else {
         toast.error('Utilizador não registado na base de dados');
       }
-
     } catch (error) {
       toast.error('Utilizador ou PIN incorretos');
       console.error(error);
