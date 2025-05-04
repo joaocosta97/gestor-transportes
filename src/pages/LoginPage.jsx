@@ -19,21 +19,25 @@ function LoginPage() {
     const fakeEmail = `${username}@gestor.com`;
 
     try {
+      // Garante persistência local antes do login
       await setPersistence(auth, browserLocalPersistence);
 
+      // Autenticação com PIN
       const userCredential = await signInWithEmailAndPassword(auth, fakeEmail, pin);
       const uid = userCredential.user.uid;
 
+      // Ir buscar o tipo de utilizador
       const userRef = doc(db, 'utilizadores', uid);
       const userSnap = await getDoc(userRef);
 
       if (userSnap.exists()) {
-        const userData = userSnap.data();
-        const tipo = userData.tipo;
+        const tipo = userSnap.data().tipo;
 
+        // Guardar em localStorage (redundante mas útil para fallback)
         localStorage.setItem('username', username);
         localStorage.setItem('tipo', tipo);
 
+        // Redirecionar consoante o tipo
         navigate(tipo === 'admin' ? '/admin' : '/home');
       } else {
         toast.error('Utilizador não registado na base de dados');

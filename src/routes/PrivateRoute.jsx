@@ -1,15 +1,18 @@
+// routes/PrivateRoute.jsx
 import { Navigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthProvider';
 
 function PrivateRoute({ children, tipoPermitido }) {
-  const username = localStorage.getItem('username');
-  const tipo = localStorage.getItem('tipo');
+  const { user, tipo } = useAuth();
 
-  if (!username || !tipo) {
+  if (!user || !tipo) {
+    // Ainda não autenticado ou a carregar
     return <Navigate to="/" />;
   }
 
   if (tipoPermitido && tipo !== tipoPermitido) {
-    return <Navigate to="/" />;
+    // Tipo de utilizador não autorizado
+    return <Navigate to={tipo === 'admin' ? '/admin' : '/home'} />;
   }
 
   return children;
