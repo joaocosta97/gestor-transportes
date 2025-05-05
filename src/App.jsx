@@ -1,17 +1,18 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import LoginPage from './pages/LoginPage'
-import HomePage from './pages/HomePage'
-import AdminPage from './pages/AdminPage'
-import PrivateRoute from './routes/PrivateRoute'
+// src/App.jsx
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import PinLoginPage from './pages/PinLoginPage';
+import HomePage from './pages/HomePage';
+import AdminPage from './pages/AdminPage';
+import PrivateRoute from './routes/PrivateRoute';
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Rota pública: Login */}
-        <Route path="/" element={<LoginPage />} />
+        {/* Página principal de login via PIN */}
+        <Route path="/" element={<PinLoginPage />} />
 
-        {/* Rota protegida: Home para utilizadores normais */}
+        {/* Rota protegida: Página do utilizador normal */}
         <Route
           path="/home"
           element={
@@ -31,11 +32,11 @@ function App() {
           }
         />
 
-        {/* Qualquer outra rota inválida → redireciona para login */}
+        {/* Rota inválida → redireciona para login */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
-  )
+  );
 }
 
-export default App
+export default App;
