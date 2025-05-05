@@ -10,7 +10,7 @@ function PinLoginPage() {
   const [erro, setErro] = useState('');
   const navigate = useNavigate();
 
-  const PASSWORD = 'transportes123'; // Password interna da app
+  const PASSWORD = 'transportes123'; 
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -61,7 +61,7 @@ function PinLoginPage() {
         onSubmit={handleLogin}
         className="bg-white shadow-lg rounded-lg p-6 w-full max-w-sm space-y-4"
       >
-        <h1 className="text-2xl font-bold text-center">Entrar com PIN</h1>
+        <h1 className="text-2xl font-bold text-center">Bem-vindo</h1>
 
         <input
           type="password"
