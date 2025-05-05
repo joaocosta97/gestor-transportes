@@ -1,4 +1,3 @@
-// pages/PinLoginPage.jsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getDoc, doc } from 'firebase/firestore';
@@ -11,7 +10,7 @@ function PinLoginPage() {
   const [erro, setErro] = useState('');
   const navigate = useNavigate();
 
-  const PASSWORD = 'transportes123'; // Password única usada só na app
+  const PASSWORD = 'transportes123'; // Password interna da app
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -27,10 +26,27 @@ function PinLoginPage() {
       }
 
       const email = pinDoc.data().email;
-
       await signInWithEmailAndPassword(auth, email, PASSWORD);
-      // Autenticação com sucesso → o AuthProvider trata do resto
-      navigate('/'); // A rota vai redirecionar automaticamente para /admin ou /home com base no tipo
+
+      // Esperar até que o tipo seja carregado no localStorage
+      const esperarPorTipo = () => {
+        return new Promise((resolve) => {
+          const check = () => {
+            const tipo = localStorage.getItem('tipo');
+            if (tipo) return resolve(tipo);
+            setTimeout(check, 100); // Verifica novamente após 100ms
+          };
+          check();
+        });
+      };
+
+      const tipo = await esperarPorTipo();
+
+      if (tipo === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/home');
+      }
     } catch (error) {
       console.error('Erro no login via PIN:', error);
       setErro('Erro ao iniciar sessão. Verifica o PIN.');
