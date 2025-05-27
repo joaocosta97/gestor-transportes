@@ -103,6 +103,18 @@ function AddRecordModal({ isOpen, onClose, onSave, initialData = {} }) {
     e.preventDefault();
     const tarefaFinal = tarefa === 'Outro' ? outraTarefa : tarefa;
 
+    const uid = localStorage.getItem('uid');
+
+    console.log('REGISTO A GUARDAR:', {
+      viatura,
+      tarefa: tarefaFinal,
+      data,
+      horaInicio,
+      horaFim,
+      username: isAdmin ? username : loggedUsername,
+      uid
+    });
+
     const registo = {
       viatura,
       tarefa: tarefaFinal,
@@ -110,7 +122,7 @@ function AddRecordModal({ isOpen, onClose, onSave, initialData = {} }) {
       horaInicio,
       horaFim,
       username: isAdmin ? username : loggedUsername,
-      uid: localStorage.getItem('uid'),
+      uid
     };
 
     onSave(registo);
