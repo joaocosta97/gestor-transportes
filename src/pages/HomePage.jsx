@@ -21,12 +21,13 @@ function HomePage() {
   const [recordToEdit, setRecordToEdit] = useState(null);
 
   const username = localStorage.getItem('username');
+  const uid = localStorage.getItem('uid');
 
   const fetchRegistos = async () => {
     try {
       const q = query(
         collection(db, 'registos'),
-        where('username', '==', username),
+        where('uid', '==', uid),
         orderBy('dataHoraInicio', 'desc')
       );
       const querySnapshot = await getDocs(q);
@@ -48,6 +49,7 @@ function HomePage() {
       await addDoc(collection(db, 'registos'), {
         ...data,
         username,
+        uid,
         createdAt: new Date(),
         dataHoraInicio,
       });
@@ -87,14 +89,12 @@ function HomePage() {
 
   return (
     <div className="min-h-screen bg-green-100 p-4 relative">
-      {/* Botões no topo */}
       <UserInfo />
       <LogoutButton />
       <br />
       <br />
       <h1 className="text-2xl font-bold mb-6">Os teus Registos</h1>
 
-      {/* Lista de registos */}
       <div className="space-y-4">
         {registos.map((registo) => (
           <div key={registo.id} className="bg-white p-4 rounded shadow">
@@ -103,7 +103,6 @@ function HomePage() {
             <p><strong>Data:</strong> {registo.data}</p>
             <p><strong>Hora:</strong> {registo.horaInicio} - {registo.horaFim}</p>
 
-            {/* Botão para editar */}
             <div className="flex gap-2 mt-2">
               <button
                 onClick={() => handleEditRecord(registo)}
@@ -119,7 +118,6 @@ function HomePage() {
         )}
       </div>
 
-      {/* Modal para criar ou editar */}
       <AddRecordModal
         isOpen={isModalOpen}
         onClose={() => {
@@ -130,7 +128,6 @@ function HomePage() {
         initialData={recordToEdit}
       />
 
-      {/* Botão flutuante */}
       <FloatingButton onClick={() => setIsModalOpen(true)} />
     </div>
   );
