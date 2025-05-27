@@ -3,7 +3,7 @@ import FloatingButton from '../components/FloatingButton';
 import AddRecordModal from '../components/AddRecordModal';
 import LogoutButton from '../components/LogoutButton';
 import UserInfo from '../components/UserInfo';
-import { db } from '../firebase';
+import { db, auth } from '../firebase';
 import {
   collection,
   addDoc,
@@ -20,23 +20,31 @@ function HomePage() {
   const [registos, setRegistos] = useState([]);
   const [recordToEdit, setRecordToEdit] = useState(null);
 
+  const uid = auth.currentUser?.uid;
   const username = localStorage.getItem('username');
-  const uid = localStorage.getItem('uid');
 
   const fetchRegistos = async () => {
+    if (!uid) {
+      console.warn('❗ UID não disponível. Utilizador pode não estar autenticado.');
+      return;
+    }
+
     try {
+      console.log('🔍 UID usado na query:', uid);
+
       const q = query(
         collection(db, 'registos'),
         where('uid', '==', uid),
         orderBy('dataHoraInicio', 'desc')
       );
-      const querySnapshot = await getDocs(q);
 
+      const querySnapshot = await getDocs(q);
       const dados = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
       }));
 
+      console.log('📄 Registos encontrados:', dados.length);
       setRegistos(dados);
     } catch (error) {
       console.error('Erro ao buscar registos:', error);
@@ -48,10 +56,12 @@ function HomePage() {
       const dataHoraInicio = new Date(`${data.data}T${data.horaInicio}`);
       await addDoc(collection(db, 'registos'), {
         ...data,
+        username,
+        uid,
         createdAt: new Date(),
         dataHoraInicio,
       });
-      console.log('Registo adicionado com sucesso');
+      console.log('✅ Registo adicionado com sucesso');
       fetchRegistos();
     } catch (error) {
       console.error('Erro ao adicionar registo:', error);
@@ -73,7 +83,7 @@ function HomePage() {
         dataHoraInicio,
       });
 
-      console.log('Registo atualizado com sucesso');
+      console.log('✅ Registo atualizado com sucesso');
       setRecordToEdit(null);
       fetchRegistos();
     } catch (error) {
