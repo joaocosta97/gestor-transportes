@@ -103,17 +103,27 @@ function AddRecordModal({ isOpen, onClose, onSave, initialData = {} }) {
     e.preventDefault();
     const tarefaFinal = tarefa === 'Outro' ? outraTarefa : tarefa;
 
-    const uid = localStorage.getItem('uid');
+    const uid = localStorage.getItem('uid') || '';
+    const usernameFinal = isAdmin ? username : loggedUsername;
 
-    console.log('REGISTO A GUARDAR:', {
+    console.group('🩺 DIAGNÓSTICO DE SUBMISSÃO');
+    console.log('📌 UID do localStorage:', uid);
+    console.log('📌 Username:', usernameFinal);
+    console.log('📦 REGISTO A ENVIAR:', {
       viatura,
       tarefa: tarefaFinal,
       data,
       horaInicio,
       horaFim,
-      username: isAdmin ? username : loggedUsername,
+      username: usernameFinal,
       uid
     });
+    console.groupEnd();
+
+    if (!uid || uid.length < 8) {
+      alert('❗ UID inválido ou ausente. Login pode não ter sido bem feito.');
+      return;
+    }
 
     const registo = {
       viatura,
@@ -121,7 +131,7 @@ function AddRecordModal({ isOpen, onClose, onSave, initialData = {} }) {
       data,
       horaInicio,
       horaFim,
-      username: isAdmin ? username : loggedUsername,
+      username: usernameFinal,
       uid
     };
 
