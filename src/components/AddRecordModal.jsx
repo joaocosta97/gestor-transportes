@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { db, auth } from '../firebase'; // IMPORTA o auth!
+import { db, auth } from '../firebase';
 import { collection, getDocs } from 'firebase/firestore';
 
 function AddRecordModal({ isOpen, onClose, onSave, initialData = {} }) {
@@ -8,6 +8,9 @@ function AddRecordModal({ isOpen, onClose, onSave, initialData = {} }) {
 
   const [loggedUsername, setLoggedUsername] = useState('');
   const [userList, setUserList] = useState([]);
+  const [userUidMap, setUserUidMap] = useState({});
+  const [selectedUserUid, setSelectedUserUid] = useState('');
+
   const [viaturasList, setViaturasList] = useState([]);
   const [tarefasList, setTarefasList] = useState([]);
 
@@ -31,8 +34,13 @@ function AddRecordModal({ isOpen, onClose, onSave, initialData = {} }) {
       const fetchUsers = async () => {
         try {
           const querySnapshot = await getDocs(collection(db, 'utilizadores'));
-          const users = querySnapshot.docs.map(doc => doc.data().username);
-          setUserList(users);
+          const usersMap = {};
+          querySnapshot.docs.forEach(doc => {
+            const data = doc.data();
+            usersMap[data.username] = doc.id; // doc.id é o UID
+          });
+          setUserList(Object.keys(usersMap));
+          setUserUidMap(usersMap);
         } catch (error) {
           console.error('Erro ao buscar utilizadores:', error);
         }
@@ -94,8 +102,11 @@ function AddRecordModal({ isOpen, onClose, onSave, initialData = {} }) {
       setHoraInicio(initialData.horaInicio || '');
       setHoraFim(initialData.horaFim || '');
       setUsername(initialData.username || (isAdmin ? '' : loggedUsername));
+      if (isAdmin && initialData.username) {
+        setSelectedUserUid(userUidMap[initialData.username] || '');
+      }
     }
-  }, [initialData, isAdmin, loggedUsername]);
+  }, [initialData, isAdmin, loggedUsername, userUidMap]);
 
   if (!isOpen) return null;
 
@@ -103,12 +114,14 @@ function AddRecordModal({ isOpen, onClose, onSave, initialData = {} }) {
     e.preventDefault();
 
     const tarefaFinal = tarefa === 'Outro' ? outraTarefa : tarefa;
-    const uid = auth.currentUser?.uid || '';
     const usernameFinal = isAdmin ? username : loggedUsername;
+    const uid = isAdmin
+      ? selectedUserUid || userUidMap[username]
+      : auth.currentUser?.uid || '';
 
     console.group('🩺 DIAGNÓSTICO DE SUBMISSÃO');
-    console.log('📌 UID do Firebase Auth:', uid);
-    console.log('📌 Username:', usernameFinal);
+    console.log('📌 UID final usado:', uid);
+    console.log('📌 Username final:', usernameFinal);
     console.log('📦 REGISTO A ENVIAR:', {
       viatura,
       tarefa: tarefaFinal,
@@ -152,7 +165,11 @@ function AddRecordModal({ isOpen, onClose, onSave, initialData = {} }) {
               <select
                 className="w-full p-2 border rounded"
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e) => {
+                  const selected = e.target.value;
+                  setUsername(selected);
+                  setSelectedUserUid(userUidMap[selected] || '');
+                }}
                 required
               >
                 <option value="">Selecionar utilizador</option>
