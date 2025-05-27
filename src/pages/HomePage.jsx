@@ -48,8 +48,6 @@ function HomePage() {
       const dataHoraInicio = new Date(`${data.data}T${data.horaInicio}`);
       await addDoc(collection(db, 'registos'), {
         ...data,
-        username,
-        uid,
         createdAt: new Date(),
         dataHoraInicio,
       });
