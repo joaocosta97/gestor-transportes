@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { db } from '../firebase';
+import { db, auth } from '../firebase'; // IMPORTA o auth!
 import { collection, getDocs } from 'firebase/firestore';
 
 function AddRecordModal({ isOpen, onClose, onSave, initialData = {} }) {
@@ -101,13 +101,13 @@ function AddRecordModal({ isOpen, onClose, onSave, initialData = {} }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const tarefaFinal = tarefa === 'Outro' ? outraTarefa : tarefa;
 
-    const uid = localStorage.getItem('uid') || '';
+    const tarefaFinal = tarefa === 'Outro' ? outraTarefa : tarefa;
+    const uid = auth.currentUser?.uid || '';
     const usernameFinal = isAdmin ? username : loggedUsername;
 
     console.group('🩺 DIAGNÓSTICO DE SUBMISSÃO');
-    console.log('📌 UID do localStorage:', uid);
+    console.log('📌 UID do Firebase Auth:', uid);
     console.log('📌 Username:', usernameFinal);
     console.log('📦 REGISTO A ENVIAR:', {
       viatura,
@@ -121,7 +121,7 @@ function AddRecordModal({ isOpen, onClose, onSave, initialData = {} }) {
     console.groupEnd();
 
     if (!uid || uid.length < 8) {
-      alert('❗ UID inválido ou ausente. Login pode não ter sido bem feito.');
+      alert('❗ UID inválido. O login pode não ter sido bem feito.');
       return;
     }
 
