@@ -26,6 +26,12 @@ function LoginPage() {
       const userCredential = await signInWithEmailAndPassword(auth, fakeEmail, pin);
       const uid = userCredential.user.uid;
 
+      if (!uid) {
+        console.error('❌ UID ausente após login!');
+        alert('Falha no login. UID ausente.');
+        return;
+      }
+
       // Ir buscar o tipo de utilizador
       const userRef = doc(db, 'utilizadores', uid);
       const userSnap = await getDoc(userRef);
@@ -38,16 +44,18 @@ function LoginPage() {
         localStorage.setItem('username', username);
         localStorage.setItem('tipo', tipo);
 
+        console.log('✅ UID guardado no localStorage:', uid);
+
         // Redirecionar consoante o tipo
         navigate(tipo === 'admin' ? '/admin' : '/home');
       } else {
-        toast.error('Utilizador não registado na base de dados');
+        alert('Utilizador não registado na base de dados');
       }
-    } catch (error) {
-      toast.error('Utilizador ou PIN incorretos');
-      console.error(error);
-    }
-  };
+      } catch (error) {
+        alert('Utilizador ou PIN incorretos');
+        console.error(error);
+      }
+    };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
